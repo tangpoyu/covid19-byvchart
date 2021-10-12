@@ -1,9 +1,29 @@
 <template>
   
   <div id="app">
-      
-      <h1>COVID-19 Tracking Dashboard of Taiwan</h1>
-      <ve-line :data="chartData" :colors="color"></ve-line>
+      <div class="title">
+        <h1>COVID-19 Tracking Dashboard of Taiwan</h1>
+      </div>
+      <h2>1.EverydaySuffer</h2>
+      <ve-line 
+        :settings="chartSettings"
+        :data="chartData"
+        :colors="color[0]">
+      </ve-line>
+      <h2>2.TotalSuffer</h2>
+      <ve-line 
+        :settings="chartSettings"
+        :extend="chartExtend[0]"
+        :data="chartData1"
+        :colors="color[1]">
+      </ve-line>
+      <h2>3.TotalDeath</h2>
+      <ve-line 
+        :settings="chartSettings"
+        :extend="chartExtend[1]"
+        :data="chartData2"
+        :colors="color[2]">
+      </ve-line>
       <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/v-charts/lib/style.min.css">
   </div>
   
@@ -13,10 +33,30 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/v-charts/lib/index.min.js"></script>
 <style>
-
-#app {
-    background-color: rgba(241, 236, 156, 0.445);
-    
+*{
+  margin:0;
+  padding: 0;
+  list-style: none;
+}
+.title{
+  background-color: black;
+  height: 80px;
+  margin-bottom: 50px;
+}
+h1{
+  color: aliceblue;
+  text-align: center;
+  padding-top: 20px;
+  
+}
+h2{
+  text-align: left;
+  padding-left: 2%;
+  
+ 
+}
+#app{
+  margin-top: 0px;
 }
 </style>
 <script>
@@ -34,33 +74,51 @@ export default {
   
   data: function () {
         return {
+          chartSettings: {
+            area:true
+          },
+          chartExtend:[
+            {'yAxis.0.min': 16000}, 
+            {'yAxis.0.min': 838}
+          ],
           chartData: {
-            columns: ['日期', '確診人數'],
+            columns: ['date', 'suffer'],
             rows: [
              
             ]
           },
-          
-          color:['#FFD700']
+          chartData1: {
+            columns: ['date', 'suffer'],
+            rows: [
+             
+            ]
+          },
+          chartData2: {
+            columns: ['date', 'suffer'],
+            rows: [
+             
+            ]
+          },
+          color:[ '#EF5350','#FFF176','#FFB74D']
         }
   },
 
   async created() {
       let { data } = await axios.get(
-        'https://covid-19.nchc.org.tw/myDT_staff.php?TB_name=owl_world&limitColumn=a01&limitValue=TW%&equalValue=%20like%20&encodeKey=MTYzMzM1Njc4MA==&c[]=id&t[]=int&d[]=NO&c[]=a01&t[]=varchar&d[]=NO&c[]=a02&t[]=varchar&d[]=NO&c[]=a03&t[]=varchar&d[]=NO&c[]=a04&t[]=date&d[]=NO&c[]=a05&t[]=int&d[]=NO&c[]=a06&t[]=int&d[]=NO&c[]=a07&t[]=decimal&d[]=NO&c[]=a08&t[]=int&d[]=NO&c[]=a09&t[]=int&d[]=NO&c[]=a10&t[]=decimal&d[]=NO&c[]=a11&t[]=decimal&d[]=NO&c[]=a12&t[]=decimal&d[]=NO&c[]=a13&t[]=decimal&d[]=NO&c[]=a14&t[]=int&d[]=NO&c[]=a15&t[]=int&d[]=NO&c[]=a16&t[]=decimal&d[]=NO&c[]=a17&t[]=decimal&d[]=NO&c[]=a18&t[]=decimal&d[]=NO&c[]=a19&t[]=decimal&d[]=NO&c[]=a20&t[]=int&d[]=NO&c[]=a21&t[]=int&d[]=NO&c[]=a22&t[]=int&d[]=NO&c[]=a23&t[]=decimal&d[]=NO&c[]=a24&t[]=decimal&d[]=NO&c[]=a25&t[]=decimal&d[]=NO&c[]=a26&t[]=decimal&d[]=NO&c[]=a27&t[]=int&d[]=NO&c[]=a28&t[]=decimal&d[]=NO&c[]=a29&t[]=decimal&d[]=NO&c[]=a30&t[]=decimal&d[]=NO&c[]=a31&t[]=int&d[]=NO&c[]=a32&t[]=decimal&d[]=NO'
+      'https://server-getdada.herokuapp.com/everydaySuffer'
       )
-      data=data.data.slice(data.data.length-30)
-      console.log(data)
-
-       data.forEach((item) => {
-      const date=item.a04
-      const{
-      a06
-      } = item
-      this.chartData.rows.push({"日期":date, "確診人數": a06})
+      this.chartData.rows = data
+      data = await axios.get(
+      'https://server-getdada.herokuapp.com/totalSuffer'
+      )
+      this.chartData1.rows= data.data
+      data = await axios.get(
+      'https://server-getdada.herokuapp.com/death'
+      )
+      this.chartData2.rows= data.data
       
-    })
-    console.log(this.chartData.rows)
+    
+      
   //    this.chartExtend = {
   //     series(item) {
   //       console.log(item)
@@ -73,7 +131,7 @@ export default {
 	// 			return item
   //     }
   //  }
-        console.log(this.chartData.rows[0].確診人數)
+       
   }
 }
 </script>
